@@ -2,4 +2,5 @@ requests
 beautifulsoup4
 html5lib
 newspaper3k
-lxml[html_clean]
+lxml
+lxml_html_clean
