@@ -1,17 +1,41 @@
-import os
 import requests
+import time
+from utils.rss import buscar_links_google_news, buscar_links_rss
+from utils.extrator import extrair_conteudo
+from utils.huggingface import gerar_conteudo_completo
+from utils.wordpress import enviar_para_plugin
 
-HUGGINGFACE_API_KEY = os.getenv("HF_TOKEN")
-MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+PALAVRAS_CHAVE = ["litoral norte de SP", "ubatuba", "ilhabela", "caraguatatuba", "são sebastião"]
 
-def gerar_texto(prompt):
-    url = f"https://api-inference.huggingface.co/models/{MODEL}"
-    headers = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
-    payload = {"inputs": prompt}
-    response = requests.post(url, headers=headers, json=payload)
-    return response.json()
+def processar_noticias():
+    print("🔍 Buscando notícias no Google News...")
+    links = buscar_links_google_news(PALAVRAS_CHAVE)
+    if not links:
+        print("⚠ Nada no Google News. Buscando nos RSS...")
+        links = buscar_links_rss()
+    if not links:
+        print("❌ Nenhuma notícia encontrada.")
+        return
+
+    for link in links:
+        print(f"📰 Coletando: {link}")
+        time.sleep(10)
+        titulo, texto, imagem = extrair_conteudo(link)
+        if not texto:
+            print("⚠ Falha na extração. Pulando...")
+            continue
+
+        print("🤖 Gerando conteúdo com IA...")
+        dados = gerar_conteudo_completo(titulo, texto, imagem)
+        if not dados:
+            print("⚠ Erro na IA. Pulando...")
+            continue
+
+        print("📤 Enviando ao WordPress...")
+        enviado = enviar_para_plugin(dados)
+        if enviado:
+            print("✅ Publicado com sucesso!\n")
+            break
 
 if __name__ == "__main__":
-    prompt = "Escreva uma notícia jornalística sobre a ventania no Litoral Norte de São Paulo."
-    resultado = gerar_texto(prompt)
-    print(resultado)
+    processar_noticias()
