@@ -1,6 +1,10 @@
 requests
 beautifulsoup4
-html5lib
 newspaper3k
 lxml
 lxml_html_clean
+python-dateutil
+tqdm
+feedparser
+openai
+tldextract
