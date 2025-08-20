@@ -1,0 +1,1 @@
+# gerador.py (coloque aqui a função gerar_conteudo_completo real)
