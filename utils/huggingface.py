@@ -1,27 +1,30 @@
 import os
 import requests
 
-API_URL = "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-API_KEY = os.environ.get("HF_TOKEN")  # Pegará da variável de ambiente no Render
-
-headers = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json"
-}
-
 def gerar_texto(prompt):
-    payload = {
+    token = os.environ.get("HF_TOKEN")
+
+    if not token:
+        raise ValueError("Token Hugging Face não encontrado. Defina HF_TOKEN nas variáveis de ambiente.")
+
+    url = "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
         "inputs": prompt,
         "parameters": {
-            "max_new_tokens": 800,
-            "temperature": 0.7,
-            "do_sample": True
+            "max_new_tokens": 600,
+            "temperature": 0.7
         }
     }
 
-    response = requests.post(API_URL, headers=headers, json=payload)
+    response = requests.post(url, headers=headers, json=data)
+    
+    if response.status_code != 200:
+        raise RuntimeError(f"Erro na geração de texto: {response.status_code} - {response.text}")
 
-    if response.status_code == 200:
-        return response.json()[0]["generated_text"]
-    else:
-        raise Exception(f"Erro na geração de texto: {response.status_code} - {response.text}")
+    resultado = response.json()
+    return resultado[0]["generated_text"]
