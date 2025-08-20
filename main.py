@@ -1,41 +1,26 @@
-import requests
-import time
-from utils.rss import buscar_links_google_news, buscar_links_rss
+
+from utils.rss import buscar_noticias
 from utils.extrator import extrair_conteudo
-from utils.huggingface import gerar_conteudo_completo
-from utils.wordpress import enviar_para_plugin
+from utils.huggingface import gerar_texto_ia
+from utils.wordpress import publicar_noticia
 
-PALAVRAS_CHAVE = ["litoral norte de SP", "ubatuba", "ilhabela", "caraguatatuba", "são sebastião"]
+print("🔍 Buscando notícias no Google News...")
+noticias = buscar_noticias("litoral norte de SP")
 
-def processar_noticias():
-    print("🔍 Buscando notícias no Google News...")
-    links = buscar_links_google_news(PALAVRAS_CHAVE)
-    if not links:
-        print("⚠ Nada no Google News. Buscando nos RSS...")
-        links = buscar_links_rss()
-    if not links:
-        print("❌ Nenhuma notícia encontrada.")
-        return
+for noticia in noticias:
+    print(f"📰 Coletando: {noticia}")
+    titulo, corpo, imagem_url = extrair_conteudo(noticia)
+    if not corpo:
+        print("⚠ Falha na extração. Pulando...")
+        continue
 
-    for link in links:
-        print(f"📰 Coletando: {link}")
-        time.sleep(10)
-        titulo, texto, imagem = extrair_conteudo(link)
-        if not texto:
-            print("⚠ Falha na extração. Pulando...")
-            continue
+    texto_gerado = gerar_texto_ia(titulo + "\n\n" + corpo)
+    if not texto_gerado:
+        print("⚠ Falha na geração. Pulando...")
+        continue
 
-        print("🤖 Gerando conteúdo com IA...")
-        dados = gerar_conteudo_completo(titulo, texto, imagem)
-        if not dados:
-            print("⚠ Erro na IA. Pulando...")
-            continue
-
-        print("📤 Enviando ao WordPress...")
-        enviado = enviar_para_plugin(dados)
-        if enviado:
-            print("✅ Publicado com sucesso!\n")
-            break
-
-if __name__ == "__main__":
-    processar_noticias()
+    sucesso = publicar_noticia(titulo, texto_gerado, imagem_url)
+    if sucesso:
+        print("✅ Publicado com sucesso:", titulo)
+    else:
+        print("❌ Falha na publicação.")
