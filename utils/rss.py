@@ -1,6 +1,5 @@
-def buscar_links_google_news(palavras):
-    # Simulação para testes
-    return ["https://exemplo.com/noticia-exemplo"]
 
-def buscar_links_rss():
-    return []
+def buscar_noticias(palavra_chave):
+    return [
+        f"https://exemplo.com/noticia-exemplo",
+    ]
