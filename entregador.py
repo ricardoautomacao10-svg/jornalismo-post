@@ -1,1 +1,0 @@
-# entregador.py (coloque aqui a função entregar_para_plugin real)
