@@ -1,19 +1,18 @@
-from utils.wordpress import publicar_no_wordpress
+def entregar_para_plugin(conteudo: dict):
+    """
+    Salva o conteúdo gerado em um arquivo JSON para que o plugin do WordPress publique.
+    """
+    import json
+    import os
+    from datetime import datetime
 
-def entregar_para_plugin(conteudo_dict):
-    titulo = conteudo_dict.get("titulo")
-    corpo = conteudo_dict.get("corpo")
-    categorias = conteudo_dict.get("categorias", [1])
-    tags = conteudo_dict.get("tags", [])
-    imagem = conteudo_dict.get("imagem")
+    pasta_saida = "publicados"
+    os.makedirs(pasta_saida, exist_ok=True)
 
-    resultado = publicar_no_wordpress(
-        titulo=titulo,
-        conteudo=corpo,
-        categorias=categorias,
-        tags=tags,
-        imagem_url=imagem
-    )
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    nome_arquivo = f"{pasta_saida}/post_{timestamp}.json"
 
-    return resultado
-# entregador.py (coloque aqui a função entregar_para_plugin real)
+    with open(nome_arquivo, "w", encoding="utf-8") as f:
+        json.dump(conteudo, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ Conteúdo salvo em: {nome_arquivo}")
