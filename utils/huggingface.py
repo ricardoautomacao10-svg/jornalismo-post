@@ -1,30 +1,20 @@
+
 import os
 import requests
 
+API_URL = "https://api-inference.huggingface.co/v1/chat/completions"
+HEADERS = {
+    "Authorization": f"Bearer {os.getenv('HF_TOKEN')}"
+}
+
 def gerar_texto(prompt):
-    token = os.environ.get("HF_TOKEN")
-
-    if not token:
-        raise ValueError("Token Hugging Face não encontrado. Defina HF_TOKEN nas variáveis de ambiente.")
-
-    url = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-
-    data = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 600,
-            "temperature": 0.7
-        }
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-    
+    response = requests.post(API_URL, headers=HEADERS, json={
+        "model": "mistralai/Mistral-7B-Instruct-v0.1",
+        "messages": [
+            {"role": "system", "content": "Você é um jornalista que escreve textos objetivos e bem elaborados para rádio e web."},
+            {"role": "user", "content": prompt}
+        ]
+    })
     if response.status_code != 200:
-        raise RuntimeError(f"Erro na geração de texto: {response.status_code} - {response.text}")
-
-    resultado = response.json()
-    return resultado[0]["generated_text"]
+        raise Exception(f"Erro na geração de texto: {response.status_code} - {response.text}")
+    return response.json()["choices"][0]["message"]["content"]
