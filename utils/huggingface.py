@@ -7,7 +7,7 @@ def gerar_texto(prompt):
     if not token:
         raise ValueError("Token Hugging Face não encontrado. Defina HF_TOKEN nas variáveis de ambiente.")
 
-    url = "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+    url = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
