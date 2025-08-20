@@ -2,7 +2,7 @@ import requests
 
 def publicar_no_wordpress(titulo, conteudo, categorias, tags, imagem_url):
     url = "https://jornalvozdolitoral.com/wp-json/wp/v2/posts"
-    user = "GeradorRSS"
+    user = "automacao"
     senha = "l$qy7qgZvZhUya1kynBk5zte"
 
     # Define categorias e tags (você pode adaptar para IDs diferentes)
