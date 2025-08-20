@@ -1,25 +1,21 @@
 import os
 import requests
 
-HF_API_TOKEN = os.getenv("HF_TOKEN")
-MODEL = "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-URL = f"https://api-inference.huggingface.co/models/{MODEL}"
-
-headers = {
-    "Authorization": f"Bearer {HF_API_TOKEN}"
-}
+HF_API_URL = "https://api-inference.huggingface.co/v1/chat/completions"
+HF_API_KEY = os.environ.get("HF_TOKEN")
 
 def gerar_texto(prompt):
-    response = requests.post(URL, headers=headers, json={"inputs": prompt})
-    
-    if response.status_code != 200:
-        raise Exception(f"Erro na geração de texto: {response.status_code} - {response.text}")
+    headers = {
+        "Authorization": f"Bearer {HF_API_KEY}"
+    }
+    payload = {
+        "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B:nscale",
+        "messages": [{"role": "user", "content": prompt}]
+    }
 
-    resultado = response.json()
+    response = requests.post(HF_API_URL, headers=headers, json=payload)
 
-    if isinstance(resultado, list) and len(resultado) > 0:
-        return resultado[0]["generated_text"]
-    elif isinstance(resultado, dict) and "generated_text" in resultado:
-        return resultado["generated_text"]
+    if response.status_code == 200:
+        return response.json()["choices"][0]["message"]["content"]
     else:
-        return "[ERRO] Texto não gerado."
+        raise Exception(f"Erro na geração de texto: {response.status_code} - {response.text}")
