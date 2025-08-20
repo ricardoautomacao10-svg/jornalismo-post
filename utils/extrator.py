@@ -1,3 +1,4 @@
+
 import requests
 from bs4 import BeautifulSoup
 from newspaper import Article
@@ -8,5 +9,5 @@ def extrair_conteudo(url):
         artigo.download()
         artigo.parse()
         return artigo.title, artigo.text, artigo.top_image
-    except:
-        return "", "", ""
+    except Exception:
+        return None, None, None
