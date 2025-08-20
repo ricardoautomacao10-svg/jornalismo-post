@@ -1,23 +1,18 @@
+
 from utils.gerador import gerar_conteudo_completo
-from utils.extrator import extrair_conteudo
 from utils.entregador import entregar_para_plugin
+from utils.coletor import buscar_links_do_google_news, extrair_conteudo
 
 if __name__ == "__main__":
     print("🔍 Buscando notícias no Google News...")
+    links = buscar_links_do_google_news("litoral norte de SP")
 
-    url = "https://www.ubatuba.sp.gov.br/noticias/estudantesiniciam06ago/"
-    try:
-        print(f"📰 Coletando: {url}")
-        noticia = extrair_conteudo(url)
-        print("✅ Extração concluída. Gerando conteúdo...")
-
-        titulo, corpo, tags = gerar_conteudo_completo(noticia)
-
-        entregar_para_plugin(
-            titulo=titulo,
-            corpo=corpo,
-            tags=tags
-        )
-
-    except Exception as e:
-        print(f"⚠ Erro ao processar: {e}")
+    for link in links:
+        print(f"📰 Coletando: {link}")
+        try:
+            titulo, texto, imagem = extrair_conteudo(link)
+            print("✅ Extração concluída. Gerando conteúdo...")
+            resultado = gerar_conteudo_completo(texto)
+            entregar_para_plugin(titulo, resultado, imagem)
+        except Exception as e:
+            print(f"⚠ Erro ao processar: {e}")
