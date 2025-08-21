@@ -1,6 +1,22 @@
-from utils.gerador import gerar_conteudo_completo
+import os
+import requests
 
-if __name__ == "__main__":
-    url = "https://www.ubatuba.sp.gov.br/noticias/estudantesiniciam06ago/"
-    conteudo = gerar_conteudo_completo(url)
-    print(conteudo)
+def gerar_texto(prompt: str) -> str:
+    API_URL = "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+    headers = {
+        "Authorization": f"Bearer {os.environ['HF_TOKEN']}"
+    }
+
+    payload = {
+        "inputs": prompt,
+        "parameters": {
+            "max_new_tokens": 512,
+            "do_sample": True,
+            "temperature": 0.7
+        }
+    }
+
+    response = requests.post(API_URL, headers=headers, json=payload)
+    if response.status_code != 200:
+        raise Exception(f"Erro na geração de texto: {response.status_code} - {response.text}")
+    return response.json()[0]['generated_text']
