@@ -1,4 +1,4 @@
-flask
+Flask
 newspaper3k
 requests
-lxml
+lxml_html_clean
