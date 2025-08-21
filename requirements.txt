@@ -1,4 +1,4 @@
-newspaper3k
-requests
-flask
+Flask==3.0.0
+newspaper3k==0.2.8
 lxml_html_clean
+requests
