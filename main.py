@@ -1,28 +1,21 @@
-from flask import Flask, send_file
+from flask import Flask, request, render_template_string
 from utils.coletor import extrair_noticia
-from utils.gerador import gerar_conteudo_completo
-import os
+from utils.gerador import gerar_texto_completo
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def gerar_artigo():
-    url = "https://www.ubatuba.sp.gov.br/noticias/estudantesiniciam06ago/"
-    print("🔍 Buscando notícias no Google News...")
-    print(f"📰 Coletando: {url}")
+    url = request.args.get("url")
+    if not url:
+        return "Parâmetro 'url' é obrigatório", 400
 
-    titulo, texto, imagem = extrair_noticia(url)
-
-    print("✅ Extração concluída. Gerando conteúdo...")
-
-    gerar_conteudo_completo(titulo, texto, imagem, url)
-
-    print("✅ Texto gerado e disponível.")
-    return "Artigo gerado. Acesse /ultima_noticia para visualizar."
-
-@app.route("/ultima_noticia")
-def serve_html():
-    return send_file("public/ultima_noticia.html")
+    try:
+        titulo, texto_base, imagem = extrair_noticia(url)
+        artigo_html = gerar_texto_completo(titulo, texto_base, imagem)
+        return render_template_string(artigo_html)
+    except Exception as e:
+        return f"Erro: {e}", 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=10000)
