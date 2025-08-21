@@ -1,44 +1,21 @@
-import os
 import requests
 
-API_URL = "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-headers = {
-    "Authorization": f"Bearer {os.environ.get('HF_TOKEN')}"
-}
+API_URL = "https://api.textsynth.com/v1/engines/gptj_6B/completions"
 
-def gerar_texto(prompt):
+def gerar_texto(prompt: str) -> str:
     payload = {
-        "inputs": prompt,
-        "parameters": {"max_new_tokens": 800}
+        "prompt": prompt,
+        "max_tokens": 1024,
+        "temperature": 0.7,
+        "top_p": 0.9,
     }
 
-    response = requests.post(API_URL, headers=headers, json=payload)
-
-    if response.status_code != 200:
-        raise Exception(f"Erro na geração de texto: {response.status_code} - {response.text}")
-
-    output = response.json()
-    return output[0]["generated_text"] if isinstance(output, list) else output.get("generated_text", "")
-
-
-def gerar_conteudo_completo(conteudo_extraido):
-    prompt = (
-        f"Reescreva esse conteúdo como uma matéria jornalística completa para rádio e web, "
-        f"com aproximadamente 800 palavras, linguagem jornalística direta, informativa e clara, "
-        f"sem repetições e sem frases curtas demais. Respeite o conteúdo original mas reescreva como se fosse "
-        f"uma lauda jornalística pronta para leitura em rádio:\n\n{conteudo_extraido}"
-    )
-    return gerar_texto(prompt)
-
-
-if __name__ == "__main__":
-    conteudo = """
-    A Prefeitura de Ubatuba, por meio da Secretaria de Educação, iniciou nesta semana o retorno às aulas da rede municipal...
-    """
-    print("🧠 Gerando conteúdo jornalístico com IA...")
     try:
-        resultado = gerar_conteudo_completo(conteudo)
-        print("✅ Texto gerado:\n")
-        print(resultado)
+        response = requests.post(API_URL, json=payload)
+        response.raise_for_status()
+        resultado = response.json()
+        return resultado.get("text", "").strip()
+
     except Exception as e:
-        print("❌ Falha:", e)
+        print(f"Erro na geração de texto com TextSynth: {e}")
+        return "Erro ao gerar texto com TextSynth."
