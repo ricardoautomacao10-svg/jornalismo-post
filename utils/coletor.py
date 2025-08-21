@@ -1,8 +1,11 @@
+
+import time
 from newspaper import Article
 
 def extrair_noticia(url):
     artigo = Article(url, language='pt')
     artigo.download()
+    time.sleep(20)
     artigo.parse()
 
     titulo = artigo.title
