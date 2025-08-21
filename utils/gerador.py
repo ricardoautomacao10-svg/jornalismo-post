@@ -1,10 +1,8 @@
-from newspaper import Article
 from utils.huggingface import gerar_texto
 
-def gerar_conteudo_completo(url: str) -> str:
-    artigo = Article(url, language='pt')
-    artigo.download()
-    artigo.parse()
-    conteudo = artigo.text
-    prompt = f"Reescreva o seguinte conteúdo como uma notícia para leitura em rádio com cerca de 800 palavras:\n{conteudo}"
+def gerar_conteudo_completo(texto_extraido):
+    prompt = f"""Reescreva esse conteúdo como uma matéria jornalística completa para rádio e web, com 800 palavras, mantendo o conteúdo informativo, o contexto local e linguagem jornalística direta. Evite copiar o texto original, reescreva com novas palavras:
+
+{texto_extraido}
+"""
     return gerar_texto(prompt)
