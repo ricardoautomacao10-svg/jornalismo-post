@@ -1,10 +1,12 @@
 from newspaper import Article
 
 def extrair_noticia(url):
-    try:
-        article = Article(url, language='pt')
-        article.download()
-        article.parse()
-        return article.title, article.text
-    except Exception as e:
-        return "", ""
+    artigo = Article(url, language='pt')
+    artigo.download()
+    artigo.parse()
+
+    titulo = artigo.title or "Sem título"
+    texto = artigo.text or "Sem conteúdo"
+    imagem = artigo.top_image if artigo.top_image else ""
+
+    return titulo, texto, imagem
