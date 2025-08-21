@@ -1,21 +1,20 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template
 from utils.coletor import extrair_noticia
-from utils.gerador import gerar_texto_completo
+from utils.gerador import gerar_artigo_completo
 
 app = Flask(__name__)
 
-@app.route("/", methods=["GET"])
+@app.route("/")
 def gerar_artigo():
     url = request.args.get("url")
     if not url:
-        return "Parâmetro 'url' é obrigatório", 400
-
+        return "URL não fornecida", 400
     try:
-        titulo, texto_base, imagem = extrair_noticia(url)
-        artigo_html = gerar_texto_completo(titulo, texto_base, imagem)
-        return render_template_string(artigo_html)
+        titulo, texto, imagem = extrair_noticia(url)
+        artigo = gerar_artigo_completo(titulo, texto)
+        return render_template("artigo.html", titulo=titulo, texto=artigo, imagem=imagem)
     except Exception as e:
-        return f"Erro: {e}", 500
+        return f"Erro: {str(e)}", 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
