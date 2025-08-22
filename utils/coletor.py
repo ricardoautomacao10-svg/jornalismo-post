@@ -1,15 +1,15 @@
-
 import time
+import requests
 from newspaper import Article
 
 def extrair_noticia(url):
-    artigo = Article(url, language='pt')
-    artigo.download()
-    time.sleep(20)
-    artigo.parse()
-
-    titulo = artigo.title
-    texto = artigo.text
-    imagem = artigo.top_image if artigo.top_image else ""
-
-    return titulo, texto, imagem
+    try:
+        session = requests.Session()
+        session.get(url, timeout=10)
+        time.sleep(20)
+        artigo = Article(url)
+        artigo.download()
+        artigo.parse()
+        return artigo.title, artigo.text, artigo.top_image or ""
+    except Exception as e:
+        raise Exception(f"Erro ao extrair a notícia: {str(e)}")
