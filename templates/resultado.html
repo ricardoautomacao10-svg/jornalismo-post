@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo }}</title>
+</head>
+<body>
+    <h1>{{ titulo }}</h1>
+    {% if imagem %}
+        <img src="{{ imagem }}" alt="Imagem da notícia" width="100%">
+    {% endif %}
+    <div style="margin-top: 20px;">
+        <p>{{ texto }}</p>
+    </div>
+</body>
+</html>
