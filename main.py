@@ -1,8 +1,7 @@
 
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 from utils.coletor import extrair_noticia
-from utils.gerador import gerar_artigo_textsynth
-from utils.salvador import salvar_html
+from utils.gerador import gerar_html_completo
 
 app = Flask(__name__)
 
@@ -10,13 +9,11 @@ app = Flask(__name__)
 def gerar_artigo():
     url = request.args.get("url")
     if not url:
-        return jsonify({"erro": "URL da notícia não fornecida"}), 400
-
+        return jsonify({"erro": "Parâmetro 'url' é obrigatório"}), 400
     try:
-        titulo, texto_original, imagem = extrair_noticia(url)
-        texto_final = gerar_artigo_textsynth(titulo, texto_original)
-        caminho = salvar_html(titulo, texto_final, imagem)
-        return send_file(caminho, mimetype="text/html")
+        titulo, texto, imagem = extrair_noticia(url)
+        html = gerar_html_completo(titulo, texto, imagem)
+        return html
     except Exception as e:
         return jsonify({"erro": str(e)}), 500
 
