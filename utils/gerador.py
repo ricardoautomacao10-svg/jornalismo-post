@@ -1,29 +1,23 @@
 import requests
+import os
 
-API_URL = "https://api.cohere.ai/v1/generate"
-API_KEY = "YOUR_API_KEY"
+TEXTSYNTH_API_KEY = os.getenv("TEXTSYNTH_API_KEY")
 
-def gerar_artigo_html(titulo, texto, imagem_url):
-    prompt = f"Reescreva esse conteúdo como uma matéria jornalística completa para rádio e web, com cerca de 800 palavras, estilo SEO e com linguagem natural:\n\n{texto}"
+def gerar_artigo(titulo, texto):
+    prompt = f"Reescreva esse conteúdo como uma matéria jornalística completa para rádio e web, com SEO, título forte e cerca de 800 palavras:\n\n{titulo}\n\n{texto}"
 
-    resposta = requests.post(API_URL,
-        headers={{
-            "Authorization": f"Bearer {API_KEY}",
-            "Content-Type": "application/json"
-        }},
-        json={{
-            "model": "command-r-plus",
-            "prompt": prompt,
-            "max_tokens": 1500
-        }}
-    )
-
-    resposta.raise_for_status()
-    saida = resposta.json()["generations"][0]["text"].strip()
-
-    html = "<html><head><meta charset='utf-8'><title>{}</title></head><body>".format(titulo)
-    html += "<h1>{}</h1>".format(titulo)
-    html += f"<img src='{imagem_url}' style='max-width:100%;'><br><br>"
-    html += "<p>{}</p>".format(saida.replace("\n", "<br>"))
-    html += "</body></html>"
-    return html
+    try:
+        response = requests.post(
+            "https://api.textsynth.com/v1/engines/gptj_6B/completions",
+            headers={"Authorization": f"Bearer {TEXTSYNTH_API_KEY}"},
+            json={
+                "prompt": prompt,
+                "max_tokens": 1000,
+                "temperature": 0.7
+            }
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data.get("text", "Erro: texto não gerado.")
+    except Exception as e:
+        return f"Erro na geração de texto com TextSynth: {str(e)}"
