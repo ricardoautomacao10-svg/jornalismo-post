@@ -1,32 +1,29 @@
 import requests
-import os
 
-def gerar_texto_jornalistico(titulo, texto_original):
-    prompt = f"""
-Reescreva esse conteúdo como uma matéria jornalística completa para rádio e web, com 800 palavras, tom jornalístico, sem exageros, focado em SEO Google. Use este título como base: {titulo}. 
-Conteúdo original: {texto_original}
-"""
+API_URL = "https://api.cohere.ai/v1/generate"
+API_KEY = "YOUR_API_KEY"
 
-    payload = {
-        "inputs": prompt,
-        "parameters": {"max_new_tokens": 800},
-    }
+def gerar_artigo_html(titulo, texto, imagem_url):
+    prompt = f"Reescreva esse conteúdo como uma matéria jornalística completa para rádio e web, com cerca de 800 palavras, estilo SEO e com linguagem natural:\n\n{texto}"
 
-    headers = {
-        "Authorization": f"Bearer {os.environ.get('HF_TOKEN')}",
-        "Content-Type": "application/json"
-    }
+    resposta = requests.post(API_URL,
+        headers={{
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }},
+        json={{
+            "model": "command-r-plus",
+            "prompt": prompt,
+            "max_tokens": 1500
+        }}
+    )
 
-    try:
-        response = requests.post(
-            "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B",
-            headers=headers,
-            json=payload,
-            timeout=60
-        )
-        response.raise_for_status()
-        resultado = response.json()
-        return resultado[0]["generated_text"]
-    except Exception as e:
-        print(f"Erro na geração de texto com Hugging Face: {e}")
-        return None
+    resposta.raise_for_status()
+    saida = resposta.json()["generations"][0]["text"].strip()
+
+    html = "<html><head><meta charset='utf-8'><title>{}</title></head><body>".format(titulo)
+    html += "<h1>{}</h1>".format(titulo)
+    html += f"<img src='{imagem_url}' style='max-width:100%;'><br><br>"
+    html += "<p>{}</p>".format(saida.replace("\n", "<br>"))
+    html += "</body></html>"
+    return html
