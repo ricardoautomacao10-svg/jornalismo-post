@@ -1,22 +1,21 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify
 from utils.coletor import extrair_noticia
-from utils.gerador import gerar_texto_jornalistico
-import os
+from utils.gerador import gerar_artigo_html
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route("/", methods=["GET"])
 def gerar_artigo():
-    url = request.args.get('url')
+    url = request.args.get("url")
     if not url:
-        return {"erro": "Parâmetro 'url' é obrigatório"}, 400
+        return jsonify({"erro": "Parâmetro 'url' é obrigatório"}), 400
 
     try:
-        titulo, texto_original, imagem_url = extrair_noticia(url)
-        artigo = gerar_texto_jornalistico(titulo, texto_original)
-        return render_template("artigo.html", titulo=titulo, imagem=imagem_url, texto=artigo)
+        titulo, texto, imagem = extrair_noticia(url)
+        html = gerar_artigo_html(titulo, texto, imagem)
+        return html
     except Exception as e:
-        return {"erro": f"Erro ao gerar artigo: {str(e)}"}, 500
+        return jsonify({"erro": str(e)}), 500
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
